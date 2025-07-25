@@ -1,167 +1,168 @@
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
+import { Menu, X, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface NavigationProps {
-  currentPage: string
-  setCurrentPage: (page: string) => void
-}
-
-const Navigation: React.FC<NavigationProps> = ({ currentPage, setCurrentPage }) => {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
-  const menuItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About' },
-    { id: 'services', label: 'Services' },
-    { id: 'portfolio', label: 'Portfolio' },
-    { id: 'team', label: 'Team' },
-    { id: 'contact', label: 'Contact' },
-  ]
+const Navigation = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
+      setScrolled(window.scrollY > 50);
+    };
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const handleNavClick = (pageId: string) => {
-    setCurrentPage(pageId)
-    setIsMobileMenuOpen(false)
-    window.scrollTo(0, 0)
-  }
+  const navItems = [
+    { name: 'About', href: '#about' },
+    { name: 'Services', href: '#services' },
+    { name: 'Portfolio', href: '#portfolio' },
+    { name: 'Team', href: '#team' },
+    { name: 'Contact', href: '#contact' },
+  ];
 
   return (
-    <>
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'glass backdrop-blur-xl py-4'
-            : 'bg-transparent py-6'
-        }`}
-      >
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <motion.div
-              className="cursor-pointer"
-              onClick={() => handleNavClick('home')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <h1 className="text-2xl font-display font-bold gradient-text-purple">
-                Purezza
-              </h1>
-            </motion.div>
-
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              {menuItems.map((item) => (
-                <motion.button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`relative text-sm font-medium transition-colors duration-200 ${
-                    currentPage === item.id
-                      ? 'text-primary'
-                      : 'text-foreground hover:text-primary'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {item.label}
-                  {currentPage === item.id && (
-                    <motion.div
-                      className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary rounded-full"
-                      layoutId="activeTab"
-                      transition={{ type: "spring", duration: 0.5 }}
-                    />
-                  )}
-                </motion.button>
-              ))}
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled 
+          ? 'glass border-b border-white/20 py-4' 
+          : 'bg-transparent py-6'
+      }`}
+    >
+      <div className="container mx-auto px-6">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex items-center space-x-3"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center">
+              <span className="text-white font-bold text-lg">P</span>
             </div>
+            <span className="font-display text-2xl text-black">
+              Purezza Technologies
+            </span>
+          </motion.div>
 
-            {/* CTA Button */}
-            <motion.button
-              onClick={() => handleNavClick('contact')}
-              className="hidden md:block px-6 py-2 bg-primary text-primary-foreground rounded-full font-medium hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 magnetic"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get Started
-            </motion.button>
+          {/* Desktop Navigation */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="hidden lg:flex items-center space-x-1"
+          >
+            {navItems.map((item, index) => (
+              <motion.a
+                key={item.name}
+                href={item.href}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+                className="px-4 py-2 rounded-xl text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300 font-medium group relative"
+              >
+                {item.name}
+                <span className="absolute inset-x-4 bottom-0 h-0.5 bg-purple-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+              </motion.a>
+            ))}
+          </motion.div>
 
-            {/* Mobile Menu Button */}
-            <motion.button
-              className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              whileTap={{ scale: 0.95 }}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </motion.button>
-          </div>
+          {/* CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="hidden lg:flex items-center space-x-4"
+          >
+            <button className="btn-primary group flex items-center space-x-2">
+              <span>Get Started</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+            </button>
+          </motion.div>
+
+          {/* Mobile Menu Button */}
+          <motion.button
+            className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-colors duration-300"
+            onClick={() => setIsOpen(!isOpen)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <AnimatePresence mode="wait">
+              {isOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X className="w-6 h-6" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu className="w-6 h-6" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
-      </motion.nav>
+      </div>
 
       {/* Mobile Menu */}
-      <motion.div
-        initial={{ opacity: 0, height: 0 }}
-        animate={{
-          opacity: isMobileMenuOpen ? 1 : 0,
-          height: isMobileMenuOpen ? 'auto' : 0,
-        }}
-        transition={{ duration: 0.3 }}
-        className="fixed top-[72px] left-0 w-full bg-background/95 backdrop-blur-xl border-b border-border z-40 md:hidden overflow-hidden"
-      >
-        <div className="container mx-auto px-6 py-6">
-          <div className="flex flex-col space-y-4">
-            {menuItems.map((item, index) => (
-              <motion.button
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                className={`text-left text-lg font-medium transition-colors duration-200 ${
-                  currentPage === item.id
-                    ? 'text-primary'
-                    : 'text-foreground hover:text-primary'
-                }`}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                {item.label}
-              </motion.button>
-            ))}
-            <motion.button
-              onClick={() => handleNavClick('contact')}
-              className="mt-4 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              Get Started
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="lg:hidden glass-dark border-t border-white/20 overflow-hidden"
+          >
+            <div className="container mx-auto px-6 py-6">
+              <div className="flex flex-col space-y-4">
+                {navItems.map((item, index) => (
+                  <motion.a
+                    key={item.name}
+                    href={item.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="text-gray-700 hover:text-purple-600 py-3 px-4 rounded-xl hover:bg-purple-50 transition-all duration-300 font-medium border-l-4 border-transparent hover:border-purple-500"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.name}
+                  </motion.a>
+                ))}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="pt-4 border-t border-gray-200"
+                >
+                  <button className="btn-primary w-full flex items-center justify-center space-x-2">
+                    <span>Get Started</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
+  );
+};
 
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-    </>
-  )
-}
-
-export default Navigation
+export default Navigation;
